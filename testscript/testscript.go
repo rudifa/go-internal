@@ -853,12 +853,26 @@ func (ts *TestScript) condition(cond string) (bool, error) {
 	case ts.params.Condition != nil:
 		return ts.params.Condition(cond)
 	default:
-		ts.Fatalf("unknown condition %q", cond)
-		panic("unreachable")
+		isSet, err := isEnvSet(cond)
+		if err != nil {
+			return false, err
+		}
+		return isSet, nil
 	}
 }
 
 // Helpers for command implementations.
+
+// isEnvSet returns true if the environment variable 'ev'
+// has a valid name and if its value is a nonempty string.
+func isEnvSet(ev string) (bool, error) {
+	matched, _ := regexp.MatchString("^[A-Z][A-Z0-9_]*$", ev)
+	if !matched {
+		err := fmt.Errorf("invalid environment variable name %q", ev)
+		return false, err
+	}
+	return os.Getenv(ev) != "", nil
+}
 
 // abbrev abbreviates the actual work directory in the string s to the literal string "$WORK".
 func (ts *TestScript) abbrev(s string) string {

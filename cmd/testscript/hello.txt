@@ -1,0 +1,5 @@
+# demo the proposed 'envvar as custom condition' feature
+
+[unix] exec echo "hello unix"
+[MYVAR] exec echo "hello MYVAR"
+[!MYVAR] exec echo "bye MYVAR"
